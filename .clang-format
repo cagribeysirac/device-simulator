@@ -1,0 +1,6 @@
+BasedOnStyle: Google  # or LLVM, Mozilla, WebKit, Microsoft
+IndentWidth: 4
+ColumnLimit: 120
+AccessModifierOffset: -4
+AllowShortFunctionsOnASingleLine: Empty
+BreakBeforeBraces: Allman
