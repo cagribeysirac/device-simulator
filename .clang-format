@@ -1,6 +1,7 @@
 BasedOnStyle: Google  # or LLVM, Mozilla, WebKit, Microsoft
+BreakBeforeBraces: Attach
 IndentWidth: 4
-ColumnLimit: 120
-AccessModifierOffset: -4
+ColumnLimit: 100
+AccessModifierOffset: -3
 AllowShortFunctionsOnASingleLine: Empty
-BreakBeforeBraces: Allman
+SortIncludes: true
