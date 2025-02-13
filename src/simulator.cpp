@@ -81,26 +81,56 @@ class Simulator {
 
 volatile sig_atomic_t stop_generator = 0;
 
-void handle_signal(int sig) {
+void handle_signal([[maybe_unused]] int sig) {
     stop_generator = 1;
+}
+
+void print_help() {
+    std::cout << "Device Simulator Usage:\n"
+              << "------------------------\n"
+              << "Options:\n"
+              << "  -h, --help            Show this help message\n"
+              << "  --min VALUE           Set minimum value (default: 1)\n"
+              << "  --max VALUE           Set maximum value (default: 200000)\n"
+              << "  --var-percentage VAL  Set variation percentage (default: 0.05)\n"
+              << "  --start VALUE         Set max start percentage (default: 0.5)\n"
+              << "  --interval VALUE      Set interval in seconds (default: 2)\n\n"
+              << "Example:\n"
+              << "  ./simulator --min 100 --max 1000 --interval 1\n"
+              << "  (Generates values between 100-1000 every 1 second)\n\n"
+              << "Note:\n"
+              << "  - var-percentage: Defines the maximum change between consecutive values\n"
+              << "  - start: Defines the maximum initial value as a percentage of max value\n"
+              << "  - Press Ctrl+C to stop the simulator\n";
 }
 
 std::map<std::string, std::string> parse_args(int argc, const char* const argv[]) {
     std::map<std::string, std::string> args;
 
-    for (int i = 1; i < argc; i += 2) {
-        std::string flag = argv[i];
+    for (int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+
+        if (arg == "-h" || arg == "--help") {
+            print_help();
+            exit(0);
+        }
+
         if (i + 1 < argc) {
-            if (flag == "--min")
-                args["min"] = argv[i + 1];
-            else if (flag == "--max")
-                args["max"] = argv[i + 1];
-            else if (flag == "--var-percentage")
-                args["var-percentage"] = argv[i + 1];
-            else if (flag == "--start")
-                args["start"] = argv[i + 1];
-            else if (flag == "--interval")
-                args["interval"] = argv[i + 1];
+            if (arg == "--min") {
+                args["min"] = argv[++i];
+            } else if (arg == "--max") {
+                args["max"] = argv[++i];
+            } else if (arg == "--var-percentage") {
+                args["var-percentage"] = argv[++i];
+            } else if (arg == "--start") {
+                args["start"] = argv[++i];
+            } else if (arg == "--interval") {
+                args["interval"] = argv[++i];
+            } else {
+                std::cerr << "Unknown argument: " << arg << "\n"
+                          << "Use --help for usage information\n";
+                exit(1);
+            }
         }
     }
     return args;
