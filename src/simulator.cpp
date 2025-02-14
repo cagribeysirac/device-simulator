@@ -1,6 +1,9 @@
 // Copyright 2025 Cagribey
 
 #include <algorithm>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <chrono>
 #include <cmath>
 #include <csignal>
@@ -9,6 +12,13 @@
 #include <random>
 #include <string>
 #include <thread>
+
+#include "include/mqtt_client.h"
+
+namespace {  // Use anonymous namespace instead of global variables
+std::string MQTT_BROKER_ADDRESS = "mqtt://127.0.0.1:1883";
+std::string MQTT_TOPIC = "local/sim";
+}  // namespace
 
 class NumberGenerator {
  private:
@@ -55,33 +65,54 @@ class NumberGenerator {
 
 class Simulator {
  private:
+    const std::string ID;
     NumberGenerator generator;
     const std::chrono::seconds SLEEP_DURATION;
     volatile sig_atomic_t* stop_flag_;
+    MqttClient mqtt_client;
 
  public:
-    Simulator(volatile sig_atomic_t* stop_flag, int interval, int min_val, int max_val,
-              double variation, double max_start)
-        : generator(min_val, max_val, variation, max_start),
+    Simulator(const std::string& id, volatile sig_atomic_t* stop_flag, int interval, int min_val,
+              int max_val, double variation, double max_start)
+        : ID(id),
+          generator(min_val, max_val, variation, max_start),
           SLEEP_DURATION(interval),
-          stop_flag_(stop_flag) {}
+          stop_flag_(stop_flag),
+          mqtt_client(MQTT_BROKER_ADDRESS, ID) {}
 
     void run() {
-        while (!*stop_flag_) {
-            auto now = std::chrono::system_clock::now();
-            auto epoch_ms =
-                std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch())
-                    .count();
+        try {
+            // Connect to broker
+            mqtt_client.connect();
 
-            std::cout << epoch_ms << " " << generator.generateNext() << std::endl;
-            std::this_thread::sleep_for(SLEEP_DURATION);
+            while (!*stop_flag_) {
+                auto now = std::chrono::system_clock::now();
+                auto epoch_ms =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch())
+                        .count();
+
+                std::string payload =
+                    std::to_string(epoch_ms) + " " + std::to_string(generator.generateNext());
+
+                mqtt_client.publish(MQTT_TOPIC + "/" + ID, payload);
+
+                std::this_thread::sleep_for(SLEEP_DURATION);
+            }
+
+            // Disconnect from broker
+            std::cout << "Disconnecting from broker..." << std::endl;
+            mqtt_client.disconnect();
+            std::cout << "Disconnected from broker." << std::endl;
+        } catch (const mqtt::exception& exc) {
+            std::cerr << "MQTT Error: " << exc.what() << std::endl;
         }
     }
 };
 
 volatile sig_atomic_t stop_generator = 0;
 
-void handle_signal([[maybe_unused]] int sig) {
+void handle_signal(int sig) {
+    std::cout << "\nReceived signal " << sig << std::endl;
     stop_generator = 1;
 }
 
@@ -95,6 +126,9 @@ void print_help() {
               << "  --var-percentage VAL  Set variation percentage (default: 0.05)\n"
               << "  --start VALUE         Set max start percentage (default: 0.5)\n"
               << "  --interval VALUE      Set interval in seconds (default: 2)\n\n"
+              << "  --id VALUE           Set id (default: random uuid)\n\n"
+              << "  --broker-address VALUE Set broker address (default: mqtt://127.0.0.1:1883)\n\n"
+              << "  --topic VALUE        Set topic (default: local/sim)\n\n"
               << "Example:\n"
               << "  ./simulator --min 100 --max 1000 --interval 1\n"
               << "  (Generates values between 100-1000 every 1 second)\n\n"
@@ -126,6 +160,12 @@ std::map<std::string, std::string> parse_args(int argc, const char* const argv[]
                 args["start"] = argv[++i];
             } else if (arg == "--interval") {
                 args["interval"] = argv[++i];
+            } else if (arg == "--id") {
+                args["id"] = argv[++i];
+            } else if (arg == "--broker-address") {
+                args["broker-address"] = argv[++i];
+            } else if (arg == "--topic") {
+                args["topic"] = argv[++i];
             } else {
                 std::cerr << "Unknown argument: " << arg << "\n"
                           << "Use --help for usage information\n";
@@ -144,6 +184,11 @@ int main(int argc, const char* const argv[]) {
     double max_start = 0.5;
     int interval = 2;
 
+    // Generate random id
+    boost::uuids::random_generator gen;
+    boost::uuids::uuid uuid = gen();
+    std::string id = "SIM-" + boost::uuids::to_string(uuid);
+
     // Parse arguments
     auto args = parse_args(argc, argv);
 
@@ -153,10 +198,12 @@ int main(int argc, const char* const argv[]) {
     if (args.count("start")) max_start = std::stod(args["start"]);
     if (args.count("var-percentage")) variation = std::stod(args["var-percentage"]);
     if (args.count("interval")) interval = std::stoi(args["interval"]);
-
+    if (args.count("id")) id = args["id"];
+    if (args.count("broker-address")) MQTT_BROKER_ADDRESS = args["broker-address"];
+    if (args.count("topic")) MQTT_TOPIC = args["topic"];
     std::signal(SIGINT, handle_signal);
 
-    Simulator simulator(&stop_generator, interval, min_val, max_val, variation, max_start);
+    Simulator simulator(id, &stop_generator, interval, min_val, max_val, variation, max_start);
     simulator.run();
 
     return 0;

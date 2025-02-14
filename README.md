@@ -20,7 +20,7 @@ $ sudo apt-get install cmake g++
 
 Create a build directory and generate build configuration files.
 ```bash
-$ cmake -B build
+$ cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 ```
 
 ### Build the project
@@ -34,17 +34,17 @@ $ cmake --build build
 
 Run the executable file.
 ```bash
-$ ./build/simulator
+$ ./build/DeviceSimulator
 ```
 
 ## Usage
 
 Example usage:
 ```bash
-$ ./build/simulator --min 100 --max 1000 --interval 1
+$ ./build/DeviceSimulator --min 100 --max 1000 --interval 1 --broker-address mqtt://127.0.0.1:1883 --topic local/sim --id SIM-123
 ```
 
 For more information, run:
 ```bash
-$ ./build/simulator --help
+$ ./build/DeviceSimulator --help
 ```

@@ -30,10 +30,11 @@ endif()
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Create executable named simulator
-add_executable(simulator ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Add include directory to the project (for header files)
-target_include_directories(simulator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
 
 # Find Boost library for uuid component
 find_package(Boost REQUIRED COMPONENTS system)
@@ -53,7 +54,7 @@ find_library(PAHO_MQTT_CPP NAMES libpaho-mqttpp3.so paho-mqttpp3
 include_directories(/usr/include)
 
 # Link Boost library to the executable
-target_link_libraries(simulator PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::boost
     ${PAHO_MQTT_CPP}
     ${PAHO_MQTT_C}
