@@ -34,3 +34,30 @@ add_executable(simulator ${SOURCES})
 
 # Add include directory to the project (for header files)
 target_include_directories(simulator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Find Boost library for uuid component
+find_package(Boost REQUIRED COMPONENTS system)
+
+# Find Paho MQTT C library
+find_library(PAHO_MQTT_C NAMES libpaho-mqtt3as.so paho-mqtt3as
+    PATHS /usr/lib /usr/lib/x86_64-linux-gnu
+    REQUIRED
+)
+
+find_library(PAHO_MQTT_CPP NAMES libpaho-mqttpp3.so paho-mqttpp3
+    PATHS /usr/lib /usr/lib/x86_64-linux-gnu
+    REQUIRED
+)
+
+# Add include directory for Paho MQTT headers
+include_directories(/usr/include)
+
+# Link Boost library to the executable
+target_link_libraries(simulator PRIVATE
+    Boost::boost
+    ${PAHO_MQTT_CPP}
+    ${PAHO_MQTT_C}
+)
+
+# Enable export of compile commands
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

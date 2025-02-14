@@ -23,6 +23,13 @@ repos:
     rev: v1.3.5
     hooks:
       - id: clang-tidy
+        name: clang-tidy
+        language: system
+        entry: clang-tidy
+        args: ['-p=build']  # compilation database's directory
       - id: cppcheck
+        name: cppcheck
+        language: system
+        entry: cppcheck
       - id: cpplint
         args: [--linelength=100]
