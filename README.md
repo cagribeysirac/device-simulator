@@ -7,11 +7,14 @@ This is a device simulator for the system design before the hardware is availabl
 - CMake
 - C++17
 - g++
+- Boost (system, uuid)
+- Paho MQTT C
+- Paho MQTT C++
 
 ### Install dependencies
 
 ```bash
-$ sudo apt-get install cmake g++
+$ sudo apt-get install cmake g++ libboost-all-dev libpaho-mqtt-dev libpaho-mqttpp-dev
 ```
 
 ## Build
