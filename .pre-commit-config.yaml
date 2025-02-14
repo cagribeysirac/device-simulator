@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -18,7 +18,7 @@ repos:
     hooks:
       - id: clang-format
         # args: [--fallback-style=Google --column-limit=100 --break-before-braces=Attach --sort-includes]
-        args: ['--style={BasedOnStyle: Google, BreakBeforeBraces: Attach, IndentWidth: 4, ColumnLimit: 100, AccessModifierOffset: -3, AllowShortFunctionsOnASingleLine: Empty, SortIncludes: true}']
+        args: ['--style={BasedOnStyle: Google, BreakBeforeBraces: Attach, IndentWidth: 4, ColumnLimit: 100, AccessModifierOffset: -3, AllowShortFunctionsOnASingleLine: Empty, SortIncludes: true}', -i]
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
@@ -31,5 +31,3 @@ repos:
         name: cppcheck
         language: system
         entry: cppcheck
-      - id: cpplint
-        args: [--linelength=100]
