@@ -22,6 +22,7 @@ $ sudo apt-get install cmake g++ libboost-all-dev libpaho-mqtt-dev libpaho-mqttp
 ### Build Configuration
 
 Create a build directory and generate build configuration files.
+
 ```bash
 $ cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 ```
@@ -29,25 +30,41 @@ $ cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 ### Build the project
 
 Build and generate the executable file.
+
 ```bash
 $ cmake --build build
+```
+
+Shortcut for build the project.
+
+```bash
+$ make build
 ```
 
 ### Run the project
 
 Run the executable file.
+
 ```bash
 $ ./build/DeviceSimulator
+```
+
+Shortcut for run the project.
+
+```bash
+$ make run
 ```
 
 ## Usage
 
 Example usage:
+
 ```bash
 $ ./build/DeviceSimulator --min 100 --max 1000 --interval 1 --broker-address mqtt://127.0.0.1:1883 --topic local/sim --id SIM-123
 ```
 
 For more information, run:
+
 ```bash
 $ ./build/DeviceSimulator --help
 ```
