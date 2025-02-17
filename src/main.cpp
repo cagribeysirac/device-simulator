@@ -130,7 +130,7 @@ void print_help() {
               << "  --broker-address VALUE Set broker address (default: mqtt://127.0.0.1:1883)\n\n"
               << "  --topic VALUE        Set topic (default: local/sim)\n\n"
               << "Example:\n"
-              << "  ./simulator --min 100 --max 1000 --interval 1\n"
+              << "  ./DeviceSimulator --min 100 --max 1000 --interval 1\n"
               << "  (Generates values between 100-1000 every 1 second)\n\n"
               << "Note:\n"
               << "  - var-percentage: Defines the maximum change between consecutive values\n"

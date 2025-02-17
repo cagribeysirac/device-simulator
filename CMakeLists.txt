@@ -29,7 +29,7 @@ endif()
 # Find all .cpp files in src/ directory
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-# Create executable named simulator
+# Create executable named DeviceSimulator
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Add include directory to the project (for header files)
